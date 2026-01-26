@@ -58,3 +58,11 @@ export type UserRole = {
     user_id: string,
     role_id: string,
 }
+
+// for user_role repo, getting user roles with role names
+
+export type UserRoleWithNames = {
+    user_id: string,
+    role_id: string,
+    role_name: string
+};
