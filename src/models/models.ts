@@ -34,3 +34,27 @@ export type NewAuditEvent = {
     actor_user_id: string,
     action: string,
 }
+
+// Role type for all roles in the database
+
+export type Role = {
+    id: string,
+    name: string,
+    created_at: Date,
+}
+
+// New role type for creating a new role,
+// for insertion so that we do not interfere with the original role type
+
+export type NewRole = {
+    name: string,
+}
+
+// User role type for associating a user with a role. We do not add <NewRole type>
+// since there it is assignable directly to the user_id and role_id both being primary keys
+
+
+export type UserRole = {
+    user_id: string,
+    role_id: string,
+}
