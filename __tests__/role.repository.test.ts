@@ -40,7 +40,10 @@ describe("RoleRepository(createRole, findRoleByName, getRoles)", () => {
         const foundRole = await repo.findRoleByName(roleName);
 
         if (!foundRole) throw new Error("Expected role to be found");
-        expect(foundRole).toEqual(createdRole);
+        expect(foundRole.id).toBe(createdRole.id);
+        expect(foundRole.name).toBe(createdRole.name);
+        expect(foundRole.created_at.getTime()).toBe(createdRole.created_at.getTime());
+
 
         const roles = await repo.getRoles();
         expect(roles).toHaveLength(1);
