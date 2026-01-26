@@ -20,7 +20,7 @@ export class UserRoleRepository {
     getUserRoles = async (userId: string): Promise<UserRoleWithNames[]> => {
         const res = await this.client.query('SELECT ur.user_id, ur.role_id, r.name AS role_name' +
             ' FROM user_roles ur JOIN roles r ON ur.role_id = r.id WHERE ur.user_id = $1', [userId]);
-        if (res.rowCount === 0) return [];
+        if (res.rows.length === 0) return [];
         return res.rows.map(this.mapUserRole);
     }
 }
