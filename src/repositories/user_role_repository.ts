@@ -1,6 +1,6 @@
 import { pool } from '../database';
 import { Pool, PoolClient } from "pg";
-import { UserRole, UserRoleWithNames } from "../models/models";
+import { UserRoleWithNames } from "../models/models";
 
 export class UserRoleRepository {
     constructor(private readonly client: Pool | PoolClient = pool) {}
