@@ -28,7 +28,7 @@ export class UserService {
 
         if (user.status === "blocked") throw new Error("User already blocked");
 
-        return await this.userRepo.updateUserStatus(userId, user.status="blocked");
+        return await this.userRepo.updateUserStatus(userId, "blocked");
     }
 
     unblockUser = async (userId: string): Promise<User> => {
@@ -40,6 +40,6 @@ export class UserService {
 
         if (user.status === "active") throw new Error("User already active");
 
-        return await this.userRepo.updateUserStatus(userId, user.status="active");
+        return await this.userRepo.updateUserStatus(userId, "active");
     }
 }
