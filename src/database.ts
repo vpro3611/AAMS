@@ -12,12 +12,4 @@ export const pool = new Pool({
     // database: process.env.DB_NAME,
 });
 
-async function main() {
-    const res = await pool.query('SELECT NOW()');
-    console.log(res.rows[0]);
-}
 
-main().catch((err) => {
-    console.error('Error in main function:', err);
-    process.exit(1);
-});
