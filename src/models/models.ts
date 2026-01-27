@@ -66,3 +66,9 @@ export type UserRoleWithNames = {
     role_id: string,
     role_name: string
 };
+
+export enum AuditAction {
+    USER_CREATED = "USER_CREATED",
+    USER_BLOCKED = "USER_BLOCKED",
+    USER_UNBLOCKED = "USER_UNBLOCKED",
+}
