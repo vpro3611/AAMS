@@ -2,7 +2,7 @@ import { pool } from "../src/database";
 import { UserRepository} from "../src/repositories/user_repository";
 
 
-describe("UserRepository (creating and finding by email and id)", () => {
+describe("UserRepository (creating and finding by email and id, updating status)", () => {
     let client: any;
     let repo: UserRepository;
 
@@ -27,7 +27,7 @@ describe("UserRepository (creating and finding by email and id)", () => {
         await pool.end();
     });
 
-    it("creates and finds a user by email and id", async () => {
+    it("creates and finds a user by email and id, and updating status", async () => {
         const email = "test@example.com";
 
         const created = await repo.createUser({
@@ -50,5 +50,8 @@ describe("UserRepository (creating and finding by email and id)", () => {
         if (!foundByID) throw new Error("Expected user to be found");
 
         expect(foundByID.email).toBe(email);
+
+        const updated = await repo.updateUserStatus(foundByID.id, "blocked");
+        expect(updated.status).toBe("blocked");
     });
 });

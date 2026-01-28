@@ -30,5 +30,4 @@ export class AuditRepository {
 
         return res.rows.map(this.mapAuditEvent);
     }
-
 }

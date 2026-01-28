@@ -58,3 +58,24 @@ export type UserRole = {
     user_id: string,
     role_id: string,
 }
+
+// for user_role repo, getting user roles with role names
+
+export type UserRoleWithNames = {
+    user_id: string,
+    role_id: string,
+    role_name: string
+};
+
+// Audit action types
+
+export enum AuditAction {
+    USER_CREATED = "USER_CREATED",
+    USER_BLOCKED = "USER_BLOCKED",
+    USER_UNBLOCKED = "USER_UNBLOCKED",
+    ROLE_CREATED = "ROLE_CREATED",
+    ROLE_SEARCHED = "ROLE_SEARCHED",
+    ROLES_SEARCHED = "ROLES_SEARCHED",
+    ROLE_UPDATED = "ROLE_UPDATED",
+    ROLE_DELETED = "ROLE_DELETED",
+}

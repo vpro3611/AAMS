@@ -31,4 +31,17 @@ export class RoleRepository {
         if (res.rows.length === 0) return [];
         return res.rows.map(this.mapRole);
     }
+
+    updateRole = async (roleId: string, newRole: NewRole): Promise<Role | null> => {
+        const { name } = newRole;
+        const res = await this.client.query('UPDATE roles SET name = $1 WHERE id = $2 RETURNING *', [name, roleId]);
+        if (res.rowCount === 0) return null;
+        return this.mapRole(res.rows[0]);
+    }
+
+    deleteRole = async (roleId: string): Promise<Role | null> => {
+        const res = await this.client.query('DELETE FROM roles WHERE id = $1 RETURNING *', [roleId]);
+        if (res.rowCount === 0) return null;
+        return this.mapRole(res.rows[0]);
+    }
 }

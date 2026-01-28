@@ -31,4 +31,9 @@ export class UserRepository {
              [newUser.email, newUser.password_hash])
          return this.mapUser(res.rows[0])
      }
+
+     updateUserStatus = async (userId: string, status: string): Promise<User> => {
+        const res = await this.client.query('UPDATE users SET status = $1 WHERE id = $2 RETURNING *', [status, userId]);
+        return this.mapUser(res.rows[0]);
+     }
 }
