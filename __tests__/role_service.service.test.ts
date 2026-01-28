@@ -86,18 +86,14 @@ describe('RoleService', () => {
         expect(updatedRole.id).toBe(createdRole.id);
     })
 
-    it("Should NOT update role if role does not exist", async () => {
-        const newRole: NewRole = {
-            name: 'Test Role',
-        };
-        const createdRole = await service.createNewRole(newRole);
-        if (!createdRole) throw new Error("Expected role to be created");
-
+    it("Should throw error if role does not exist", async () => {
         const nonExistentRoleId = randomUUID();
 
-        const updatedRole = await service.updateRole(nonExistentRoleId, {name: 'Updated Role'});
-        expect(updatedRole).toBeNull();
-    })
+        await expect(
+            service.updateRole(nonExistentRoleId, { name: "Updated Role" })
+        ).rejects.toThrow("Role not found");
+    });
+
 
     it("Should delete role", async () => {
         const newRole: NewRole = {
