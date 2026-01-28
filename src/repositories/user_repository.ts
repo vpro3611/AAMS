@@ -36,4 +36,15 @@ export class UserRepository {
         const res = await this.client.query('UPDATE users SET status = $1 WHERE id = $2 RETURNING *', [status, userId]);
         return this.mapUser(res.rows[0]);
      }
+
+     getUsers = async (): Promise<User[]> => {
+         const res = await this.client.query('SELECT * FROM users');
+         return res.rows.map(this.mapUser);
+     }
+
+     deleteUser = async (userId: string): Promise<User | null> => {
+         const res = await this.client.query('DELETE FROM users WHERE id = $1 RETURNING *', [userId]);
+         if (res.rowCount === 0) return null;
+         return this.mapUser(res.rows[0]);
+     }
 }
