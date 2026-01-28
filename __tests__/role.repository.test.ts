@@ -55,4 +55,20 @@ describe("RoleRepository(createRole, findRoleByName, getRoles)", () => {
         expect(updatedRole.id).toBe(foundRole.id);
     });
 
+    it('should delete a role)', async () => {
+        const roleName = "deleteRoleTest";
+        const createdRole = await repo.createRole({name: roleName});
+
+        if (!createdRole) throw new Error("Expected role to be created");
+        expect(createdRole).not.toBeNull()
+        expect(createdRole.name).toBe(roleName);
+        expect(createdRole.id).toBeDefined();
+        expect(createdRole.created_at).toBeDefined();
+
+        const deletedRole = await repo.deleteRole(createdRole.id)
+        if (!deletedRole) throw new Error("Expected role to be deleted");
+        expect(deletedRole.id).toBe(createdRole.id);
+        expect(deletedRole.name).toBe(createdRole.name);
+    });
+
 });
