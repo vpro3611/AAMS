@@ -67,6 +67,8 @@ export type UserRoleWithNames = {
     role_name: string
 };
 
+// Audit action types
+
 export enum AuditAction {
     USER_CREATED = "USER_CREATED",
     USER_BLOCKED = "USER_BLOCKED",
