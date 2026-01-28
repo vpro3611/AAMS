@@ -111,7 +111,8 @@ describe('RoleService', () => {
     it("Should NOT delete role if role does not exist", async () => {
         const nonExistentRoleId = randomUUID();
 
-        const deletedRole = await service.deleteRole(nonExistentRoleId);
-        expect(deletedRole).toBeNull();
+        await expect(
+            service.deleteRole(nonExistentRoleId)
+        ).rejects.toThrow("Role not found");
     })
 })
