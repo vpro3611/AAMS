@@ -26,7 +26,7 @@ describe("RoleRepository(createRole, findRoleByName, getRoles)", () => {
         await pool.end();
     })
 
-    it("creates, finds and gets roles", async () => {
+    it("creates, finds, gets roles and updates role", async () => {
         const roleName = "testRole";
 
         const createdRole = await repo.createRole({name: roleName});
@@ -48,5 +48,11 @@ describe("RoleRepository(createRole, findRoleByName, getRoles)", () => {
         const roles = await repo.getRoles();
         expect(roles).toHaveLength(1);
         expect(roles[0]).toEqual(createdRole);
+
+        const updatedRole = await repo.updateRole(foundRole.id, { name: "updatedRoleName" });
+        if (!updatedRole) throw new Error("Expected role to be updated");
+        expect(updatedRole.name).toBe("updatedRoleName");
+        expect(updatedRole.id).toBe(foundRole.id);
     });
+
 });
