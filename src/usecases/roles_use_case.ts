@@ -120,4 +120,33 @@ export class RolesUseCase {
             client.release();
         }
     }
+
+    deleteRole = async (userId: string, roleId: string): Promise<Role | null> => {
+        if (!userId) {
+            throw new Error("User ID is required");
+        }
+
+        const client = await this.pool.connect();
+
+        try {
+            await client.query("BEGIN");
+
+            const roleRepo = new RoleRepository(client);
+            const roleServ = new RoleService(roleRepo);
+
+            const auditRepo = new AuditRepository(client);
+            const auditServ = new AuditService(auditRepo);
+
+            const role = await roleServ.deleteRole(roleId);
+
+            await auditServ.log(userId, AuditAction.ROLE_DELETED);
+            await client.query("COMMIT");
+            return role;
+        } catch (e) {
+            await client.query("ROLLBACK");
+            throw e;
+        } finally {
+            client.release();
+        }
+    }
 }
