@@ -5,6 +5,10 @@ import {NewUser, User} from "../models/models";
 export class UserService {
     constructor(private readonly userRepo: UserRepository) {}
 
+    private checkEmail = (email: string): boolean => {
+        return email.includes("@") && email.includes(".");
+    }
+
     createUser = async (newUser: NewUser): Promise<User> => {
         if (!newUser.email || !newUser.password_hash) {
             throw new Error("Invalid user data");
@@ -14,7 +18,7 @@ export class UserService {
 
         if (checkUser) throw new Error("User already exists");
 
-        if (!newUser.email.includes("@") || !newUser.email.includes(".")) throw new Error("Invalid email format")
+        if (!this.checkEmail) throw new Error("Invalid email format")
 
         return await this.userRepo.createUser(newUser);
     }
@@ -41,5 +45,33 @@ export class UserService {
         if (user.status === "active") throw new Error("User already active");
 
         return await this.userRepo.updateUserStatus(userId, "active");
+    }
+
+    findUserById = async (userId: string): Promise<User> => {
+        if (!userId) throw new Error("Invalid user id");
+
+        const user = await this.userRepo.findUserById(userId);
+        if (!user) throw new Error("User not found");
+
+        return user;
+    }
+
+    findUserByEmail = async (email: string): Promise<User> => {
+        if (!email) throw new Error("Email cannot be null or undefined");
+        if (!this.checkEmail(email)) throw new Error("Invalid email format");
+        const user = await this.userRepo.findUserByEmail(email);
+        if (!user) throw new Error("User not found");
+        return user;
+    }
+
+    getAllUsers = async (): Promise<User[]> => {
+        return await this.userRepo.getUsers();
+    }
+
+    deleteUser = async (userId: string): Promise<User> => {
+        if (!userId) throw new Error("Invalid user id");
+        const user =  await this.userRepo.deleteUser(userId);
+        if (!user) throw new Error("User not found");
+        return user;
     }
 }
