@@ -1,5 +1,6 @@
 import { pool } from "../src/database";
 import { UserRepository} from "../src/repositories/user_repository";
+import {randomUUID} from "crypto";
 
 
 describe("UserRepository (creating and finding by email and id, updating status)", () => {
@@ -53,5 +54,43 @@ describe("UserRepository (creating and finding by email and id, updating status)
 
         const updated = await repo.updateUserStatus(foundByID.id, "blocked");
         expect(updated.status).toBe("blocked");
+    });
+
+    it('should get list of all users', async () => {
+        const email = "test@example.com";
+        const password_hash = "hash123";
+
+        const created = await repo.createUser({
+            email,
+            password_hash
+        })
+
+        expect(created).not.toBeNull();
+
+        const users = await repo.getUsers();
+        expect(users).toHaveLength(1);
+    });
+
+    it('should delete a user by his id', async () => {
+        const email = "test@example.com";
+        const password_hash = "hash123";
+
+        const created = await repo.createUser({
+            email,
+            password_hash
+        })
+
+        const deleted = await repo.deleteUser(created.id);
+        if (!deleted) throw new Error(
+            "Expected user to be deleted"
+        )
+        expect(deleted).not.toBeNull();
+        expect(deleted.id).toBe(created.id);
+    });
+
+    it('should not delete a user by his id if he does not exist', async () => {
+        const userRandomUUID = randomUUID()
+        const deleted = await repo.deleteUser(userRandomUUID);
+        expect(deleted).toBeNull();
     });
 });
