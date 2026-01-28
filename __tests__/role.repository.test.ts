@@ -1,5 +1,6 @@
 import { pool } from "../src/database"
 import { RoleRepository } from "../src/repositories/role_repository"
+import {randomUUID} from "crypto";
 
 describe("RoleRepository(createRole, findRoleByName, getRoles)", () => {
     let client: any;
@@ -71,4 +72,20 @@ describe("RoleRepository(createRole, findRoleByName, getRoles)", () => {
         expect(deletedRole.name).toBe(createdRole.name);
     });
 
+    it("shouldnot delete unexistant)", async () => {
+        const roleName = "deleteRoleTest";
+        const createdRole = await repo.createRole({name: roleName});
+
+        if (!createdRole) throw new Error("Expected role to be created");
+        expect(createdRole).not.toBeNull()
+        expect(createdRole.name).toBe(roleName);
+        expect(createdRole.id).toBeDefined();
+        expect(createdRole.created_at).toBeDefined();
+
+        const nonExistentUserId = randomUUID();
+        const deletedRole = await repo.deleteRole(nonExistentUserId)
+
+        expect(deletedRole).toBeNull();
+
+    })
 });
