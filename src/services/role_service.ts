@@ -19,10 +19,12 @@ export class RoleService {
         return this.roleRepo.getRoles();
     }
 
-    updateRole = async (roleId: string, newRole: NewRole): Promise<Role | null> => {
+    updateRole = async (roleId: string, newRole: NewRole): Promise<Role> => {
         if (!roleId) throw new Error("Role id cannot be null or undefined");
         if (!newRole) throw new Error("New role cannot be null or undefined");
-        return this.roleRepo.updateRole(roleId, newRole);
+        const updated = await this.roleRepo.updateRole(roleId, newRole);
+        if (!updated) throw new Error("Role not found");
+        return updated;
     }
 
     deleteRole = async (roleId: string): Promise<Role | null> => {
