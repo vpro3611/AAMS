@@ -39,8 +39,9 @@ export class RoleRepository {
         return this.mapRole(res.rows[0]);
     }
 
-    deleteRole = async (roleId: string): Promise<Role> => {
+    deleteRole = async (roleId: string): Promise<Role | null> => {
         const res = await this.client.query('DELETE FROM roles WHERE id = $1 RETURNING *', [roleId]);
+        if (res.rowCount === 0) return null;
         return this.mapRole(res.rows[0]);
     }
 }
