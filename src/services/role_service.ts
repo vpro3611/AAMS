@@ -5,14 +5,18 @@ import {NewRole, Role} from "../models/models";
 export class RoleService {
     constructor(private readonly roleRepo: RoleRepository) {}
 
-    createNewRole = async (newRole: NewRole): Promise<Role | null> => {
+    createNewRole = async (newRole: NewRole): Promise<Role> => {
         if (!newRole) throw new Error("New role cannot be null or undefined");
-        return await this.roleRepo.createRole(newRole);
+        const res = await this.roleRepo.createRole(newRole);
+        if (!res) throw new Error("Role creation failed");
+        return res;
     }
 
-    findRoleByName = async (name: string): Promise<Role | null> => {
+    findRoleByName = async (name: string): Promise<Role> => {
         if (!name) throw new Error("Role name cannot be null or undefined");
-        return await this.roleRepo.findRoleByName(name);
+        const res = await this.roleRepo.findRoleByName(name);
+        if (!res) throw new Error("Role not found");
+        return res;
     }
 
     getAllRoles = async (): Promise<Role[]> => {
