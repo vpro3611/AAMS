@@ -65,24 +65,25 @@ describe("RoleUseCase - findRoleByName", () => {
         expect(audits.rows[0].actor_user_id).toBe(user.id);
     });
 
-    it("should return null and still create audit record when role does not exist", async () => {
+    it("throws error and does NOT create audit when role does not exist", async () => {
         const user = await userService.createUser({
             email: "find_role_null@example.com",
             password_hash: "password123"
         });
 
-        const role = await useCase.findRoleByName(user.id, "non-existent-role");
-
-        expect(role).toBeNull();
+        await expect(
+            useCase.findRoleByName(user.id, "non-existent-role")
+        ).rejects.toThrow("Role not found");
 
         const audits = await pool.query(
             "SELECT * FROM audit_events WHERE action = $1",
             [AuditAction.ROLE_SEARCHED]
         );
 
-        expect(audits.rows).toHaveLength(1);
-        expect(audits.rows[0].actor_user_id).toBe(user.id);
+        expect(audits.rows).toHaveLength(0);
     });
+
+
 
     it("should rollback and not create audit if userId is missing", async () => {
         await expect(
