@@ -36,50 +36,57 @@ describe("UserUseCase - blockUser", () => {
     });
 
     it("should block user and create audit record in one transaction", async () => {
-        const newUser: NewUser = {
+        const actor = await useCase.createUser({
+            email: "admin@example.com",
+            password_hash: "admin_pass"
+        });
+
+        const targetUser = await useCase.createUser({
             email: "block_test@example.com",
             password_hash: "password123"
-        };
+        });
 
-        // создаём пользователя через use case
-        const createdUser = await useCase.createUser(newUser);
-        expect(createdUser.status).toBe("active");
+        expect(targetUser.status).toBe("active");
 
-        // блокируем
-        const blockedUser = await useCase.blockUser(createdUser.id);
+        const blockedUser = await useCase.blockUser(actor.id, targetUser.id);
 
         expect(blockedUser.status).toBe("blocked");
-        expect(blockedUser.id).toBe(createdUser.id);
+        expect(blockedUser.id).toBe(targetUser.id);
 
-        // проверяем БД напрямую (это нормально для integration)
+        // проверяем users
         const userRes = await pool.query(
             "SELECT status FROM users WHERE id = $1",
-            [createdUser.id]
+            [targetUser.id]
         );
 
         expect(userRes.rows[0].status).toBe("blocked");
 
+        // проверяем audit
         const auditRes = await pool.query(
             "SELECT * FROM audit_events WHERE action = $1",
             [AuditAction.USER_BLOCKED]
         );
 
         expect(auditRes.rows).toHaveLength(1);
-        expect(auditRes.rows[0].actor_user_id).toBe(createdUser.id);
+        expect(auditRes.rows[0].actor_user_id).toBe(actor.id);
     });
 
     it("should rollback and not create audit if user not found", async () => {
+        const actor = await useCase.createUser({
+            email: "admin@example.com",
+            password_hash: "admin_pass"
+        });
+
         const nonExistentUserId = randomUUID();
 
         await expect(
-            useCase.blockUser(nonExistentUserId)
+            useCase.blockUser(actor.id, nonExistentUserId)
         ).rejects.toThrow("User not found");
 
         const users = await pool.query("SELECT * FROM users");
         const audits = await pool.query("SELECT * FROM audit_events");
 
-        expect(users.rows).toHaveLength(0);
-        expect(audits.rows).toHaveLength(0);
+        expect(users.rows).toHaveLength(1);   // только actor
+        expect(audits.rows).toHaveLength(1);  // только USER_CREATED
     });
-
 });

@@ -36,61 +36,71 @@ describe("UserUseCase - unblockUser", () => {
     });
 
     it("should unblock a blocked user and create audit record", async () => {
-        const newUser: NewUser = {
+        const actor = await useCase.createUser({
+            email: "admin@example.com",
+            password_hash: "admin_pass"
+        });
+
+        const targetUser = await useCase.createUser({
             email: "unblock_test@example.com",
             password_hash: "password123"
-        };
+        });
 
-        // create → active
-        const createdUser = await useCase.createUser(newUser);
-        expect(createdUser.status).toBe("active");
+        expect(targetUser.status).toBe("active");
 
-        // block → blocked
-        const blockedUser = await useCase.blockUser(createdUser.id);
+        const blockedUser = await useCase.blockUser(actor.id, targetUser.id);
         expect(blockedUser.status).toBe("blocked");
 
-        // unblock → active
-        const unblockedUser = await useCase.unblockUser(createdUser.id);
+        const unblockedUser = await useCase.unblockUser(actor.id, targetUser.id);
         expect(unblockedUser.status).toBe("active");
-        expect(unblockedUser.id).toBe(createdUser.id);
+        expect(unblockedUser.id).toBe(targetUser.id);
 
-        // проверяем audit
         const auditRes = await pool.query(
             "SELECT * FROM audit_events WHERE action = $1",
             [AuditAction.USER_UNBLOCKED]
         );
 
         expect(auditRes.rows).toHaveLength(1);
-        expect(auditRes.rows[0].actor_user_id).toBe(createdUser.id);
+        expect(auditRes.rows[0].actor_user_id).toBe(actor.id);
     });
 
     it("should rollback and not create audit if user not found", async () => {
+        const actor = await useCase.createUser({
+            email: "admin@example.com",
+            password_hash: "admin_pass"
+        });
+
         const nonExistentUserId = randomUUID();
 
         await expect(
-            useCase.unblockUser(nonExistentUserId)
+            useCase.unblockUser(actor.id, nonExistentUserId)
         ).rejects.toThrow("User not found");
 
         const users = await pool.query("SELECT * FROM users");
         const audits = await pool.query("SELECT * FROM audit_events");
 
-        expect(users.rows).toHaveLength(0);
-        expect(audits.rows).toHaveLength(0);
+        expect(users.rows).toHaveLength(1); // только actor
+        expect(audits.rows).toHaveLength(1); // только USER_CREATED
     });
 
     it("should rollback if user already active", async () => {
+        const actor = await useCase.createUser({
+            email: "admin@example.com",
+            password_hash: "admin_pass"
+        });
+
         const user = await useCase.createUser({
             email: "already_active@example.com",
             password_hash: "password123"
         });
 
         await expect(
-            useCase.unblockUser(user.id)
+            useCase.unblockUser(actor.id, user.id)
         ).rejects.toThrow("User already active");
 
         const audits = await pool.query("SELECT * FROM audit_events");
-        expect(audits.rows).toHaveLength(1); // только USER_CREATED
+
+        // USER_CREATED для actor + USER_CREATED для user
+        expect(audits.rows).toHaveLength(2);
     });
-
-
 });
