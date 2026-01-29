@@ -1,5 +1,5 @@
 import {UserRoleRepository} from "../repositories/user_role_repository";
-import {UserRole} from "../models/models";
+import {UserRole, UserRoleWithNames} from "../models/models";
 
 
 export class UserRoleService {
@@ -10,7 +10,7 @@ export class UserRoleService {
         if (!roleId) throw new Error("Invalid role id");
         return await this.userRoleRepo.assignRoleToUser(userId, roleId);
     }
-    getUserRoles = async (userId: string): Promise<UserRole[]> => {
+    getUserRoles = async (userId: string): Promise<UserRoleWithNames[]> => {
         if (!userId) throw new Error("Invalid user id");
         return await this.userRoleRepo.getUserRoles(userId);
     }
