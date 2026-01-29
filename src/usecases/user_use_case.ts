@@ -34,7 +34,9 @@ export class UserUseCase {
         }
     }
 
-    async blockUser(userId: string): Promise<User> {
+    async blockUser(actorId: string, userId: string): Promise<User> {
+        if (!actorId) throw new Error("Actor ID is required");
+
         const client = await this.pool.connect();
 
         try {
@@ -48,7 +50,7 @@ export class UserUseCase {
 
             const user = await userServ.blockUser(userId);
 
-            await auditServ.log(user.id, AuditAction.USER_BLOCKED);
+            await auditServ.log(actorId, AuditAction.USER_BLOCKED);
             await client.query("COMMIT");
             return user;
         } catch (e) {
@@ -59,7 +61,9 @@ export class UserUseCase {
         }
     }
 
-    async unblockUser(userId: string): Promise<User> {
+    async unblockUser(actorId: string, userId: string): Promise<User> {
+        if (!actorId) throw new Error("Actor ID is required");
+
         const client = await this.pool.connect();
 
         try {
@@ -73,7 +77,7 @@ export class UserUseCase {
 
             const user = await userServ.unblockUser(userId);
 
-            await auditServ.log(user.id, AuditAction.USER_UNBLOCKED);
+            await auditServ.log(actorId, AuditAction.USER_UNBLOCKED);
             await client.query("COMMIT");
             return user;
         } catch (e) {
