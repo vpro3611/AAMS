@@ -8,4 +8,8 @@ export class AuditService {
     log = async (actorUserId: string, action: string): Promise<AuditEvent> => {
         return await this.auditRepo.createAuditEvent({actor_user_id: actorUserId, action});
     }
+
+    getAuditEvents = async (): Promise<AuditEvent[]> => {
+        return await this.auditRepo.getAuditEvents();
+    }
 }
