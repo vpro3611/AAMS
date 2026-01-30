@@ -8,7 +8,9 @@ export class UserRoleService {
     assignRoleToUser = async (userId: string, roleId: string): Promise<UserRole> => {
         if (!userId) throw new Error("Invalid user id");
         if (!roleId) throw new Error("Invalid role id");
-        return await this.userRoleRepo.assignRoleToUser(userId, roleId);
+        const res = await this.userRoleRepo.assignRoleToUser(userId, roleId);
+        if (!res) throw new Error("User role not found");
+        return res;
     }
     getUserRoles = async (userId: string): Promise<UserRoleWithNames[]> => {
         if (!userId) throw new Error("Invalid user id");
