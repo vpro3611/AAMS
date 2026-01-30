@@ -20,10 +20,10 @@ export class UserRoleRepository {
         };
     }
 
-    assignRoleToUser = async (userId: string, roleId: string): Promise<UserRole> => {
+    assignRoleToUser = async (userId: string, roleId: string): Promise<UserRole | null> => {
         const res = await this.client.query('INSERT INTO user_roles (user_id, role_id) VALUES ($1, $2) RETURNING *',
             [userId, roleId]);
-        if (res.rowCount === 0) throw new Error('User role already exists');
+        if (res.rowCount === 0) return null;
         return this.mapRole(res.rows[0]);
     }
 
