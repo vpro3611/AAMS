@@ -1,21 +1,22 @@
 import {RoleRepository} from "../repositories/role_repository";
 import {NewRole, Role} from "../models/models";
+import {BadRequestError, RoleNotFoundError, RolePersistenceError} from "../errors/errors";
 
 
 export class RoleService {
     constructor(private readonly roleRepo: RoleRepository) {}
 
     createNewRole = async (newRole: NewRole): Promise<Role> => {
-        if (!newRole) throw new Error("New role cannot be null or undefined");
+        if (!newRole) throw new BadRequestError("New role cannot be null or undefined");
         const res = await this.roleRepo.createRole(newRole);
-        if (!res) throw new Error("Role creation failed");
+        if (!res) throw new RolePersistenceError();
         return res;
     }
 
     findRoleByName = async (name: string): Promise<Role> => {
-        if (!name) throw new Error("Role name cannot be null or undefined");
+        if (!name) throw new BadRequestError("Role name cannot be null or undefined");
         const res = await this.roleRepo.findRoleByName(name);
-        if (!res) throw new Error("Role not found");
+        if (!res) throw new RoleNotFoundError();
         return res;
     }
 
@@ -24,17 +25,17 @@ export class RoleService {
     }
 
     updateRole = async (roleId: string, newRole: NewRole): Promise<Role> => {
-        if (!roleId) throw new Error("Role id cannot be null or undefined");
-        if (!newRole) throw new Error("New role cannot be null or undefined");
+        if (!roleId) throw new BadRequestError("Role id cannot be null or undefined");
+        if (!newRole) throw new BadRequestError("New role cannot be null or undefined");
         const updated = await this.roleRepo.updateRole(roleId, newRole);
-        if (!updated) throw new Error("Role not found");
+        if (!updated) throw new RoleNotFoundError();
         return updated;
     }
 
     deleteRole = async (roleId: string): Promise<Role> => {
-        if (!roleId) throw new Error("Role id cannot be null or undefined");
+        if (!roleId) throw new BadRequestError("Role id cannot be null or undefined");
         const role = await this.roleRepo.deleteRole(roleId);
-        if (!role) throw new Error("Role not found");
+        if (!role) throw new RoleNotFoundError();
         return role;
     }
 }
