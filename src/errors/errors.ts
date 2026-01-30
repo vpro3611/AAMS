@@ -33,3 +33,23 @@ export class RolePersistenceError extends DomainError {
         super('Role could not be persisted');
     }
 }
+
+export class UserRoleNotFoundError extends DomainError {
+    readonly httpStatus = 404;
+    readonly code = 'USER_ROLE_NOT_FOUND';
+
+    constructor() {
+        super('User role not found');
+    }
+}
+
+export class UserRolePersistenceError extends DomainError {
+    readonly httpStatus = 409;
+    readonly code = 'USER_ROLE_PERSISTENCE_ERROR';
+
+    constructor() {
+        super('User role could not be persisted');
+    }
+}
+
+
