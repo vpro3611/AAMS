@@ -47,6 +47,8 @@ describe('UserRoleRepository (integration)', () => {
     it('assigns a role to a user', async () => {
         const result = await repo.assignRoleToUser(testUser.id, testRole.id);
 
+        expect(result).not.toBeNull();
+
         expect(result).toEqual({
             user_id: testUser.id,
             role_id: testRole.id,
