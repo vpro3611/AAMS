@@ -52,4 +52,21 @@ export class UserRolePersistenceError extends DomainError {
     }
 }
 
+export class UserNotFoundError extends DomainError {
+    readonly httpStatus = 404;
+    readonly code = 'USER_NOT_FOUND';
+
+    constructor() {
+        super('User not found');
+    }
+}
+
+export class UserConflictError extends DomainError {
+    readonly httpStatus = 409;
+    readonly code = 'USER_CONFLICT';
+
+    constructor(message: string) {
+        super(message);
+    }
+}
 
