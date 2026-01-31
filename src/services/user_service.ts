@@ -1,5 +1,5 @@
 import { UserRepository} from "../repositories/user_repository";
-import {NewUser, User} from "../models/models";
+import {NewUser, User, UserStatus} from "../models/models";
 import {BadRequestError, UserConflictError, UserNotFoundError} from "../errors/errors";
 
 
@@ -31,9 +31,9 @@ export class UserService {
 
         if (!user) throw new UserNotFoundError();
 
-        if (user.status === "blocked") throw new UserConflictError("User already blocked");
+        if (user.status === UserStatus.BLOCKED) throw new UserConflictError("User already blocked");
 
-        return await this.userRepo.updateUserStatus(userId, "blocked");
+        return await this.userRepo.updateUserStatus(userId, UserStatus.BLOCKED);
     }
 
     unblockUser = async (userId: string): Promise<User> => {
@@ -43,9 +43,9 @@ export class UserService {
 
         if (!user) throw new UserNotFoundError();
 
-        if (user.status === "active") throw new UserConflictError("User already active");
+        if (user.status === UserStatus.ACTIVE) throw new UserConflictError("User already active");
 
-        return await this.userRepo.updateUserStatus(userId, "active");
+        return await this.userRepo.updateUserStatus(userId, UserStatus.ACTIVE);
     }
 
     findUserById = async (userId: string): Promise<User> => {
