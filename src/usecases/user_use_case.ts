@@ -5,6 +5,7 @@ import {AuditRepository} from "../repositories/audit_repository";
 import {UserService} from "../services/user_service";
 import {AuditService} from "../services/audit_service";
 import {AuditAction} from "../models/models";
+import {BadRequestError} from "../errors/errors";
 
 export class UserUseCase {
     constructor(private readonly pool: Pool) {}
@@ -35,7 +36,7 @@ export class UserUseCase {
     }
 
     blockUser = async (actorId: string, userId: string): Promise<User> => {
-        if (!actorId) throw new Error("Actor ID is required");
+        if (!actorId) throw new BadRequestError("Actor ID is required");
 
         const client = await this.pool.connect();
 
@@ -62,7 +63,7 @@ export class UserUseCase {
     }
 
      unblockUser = async (actorId: string, userId: string): Promise<User> => {
-        if (!actorId) throw new Error("Actor ID is required");
+        if (!actorId) throw new BadRequestError("Actor ID is required");
 
         const client = await this.pool.connect();
 
@@ -89,7 +90,7 @@ export class UserUseCase {
     }
 
     findUserById = async (actorId: string, userId: string): Promise<User> => {
-        if (!actorId) throw new Error("Actor ID is required");
+        if (!actorId) throw new BadRequestError("Actor ID is required");
 
         const client = await this.pool.connect();
 
@@ -116,7 +117,7 @@ export class UserUseCase {
     }
 
     findUserByEmail = async (actorId: string, email: string): Promise<User> => {
-        if (!actorId) throw new Error("Actor ID is required");
+        if (!actorId) throw new BadRequestError("Actor ID is required");
 
         const client = await this.pool.connect();
 
@@ -143,7 +144,7 @@ export class UserUseCase {
     }
 
     getAllUsers = async (actorId: string): Promise<User[]> => {
-        if (!actorId) throw new Error("Actor ID is required");
+        if (!actorId) throw new BadRequestError("Actor ID is required");
 
         const client = await this.pool.connect();
 
@@ -170,7 +171,7 @@ export class UserUseCase {
     }
 
     deleteUser = async (actorId: string, userId: string): Promise<User> => {
-        if (!actorId) throw new Error("Actor ID is required");
+        if (!actorId) throw new BadRequestError("Actor ID is required");
 
         const client = await this.pool.connect();
 

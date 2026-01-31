@@ -4,12 +4,13 @@ import {UserRoleService} from "../services/user_role_service";
 import {AuditRepository} from "../repositories/audit_repository";
 import {AuditService} from "../services/audit_service";
 import {AuditAction, UserRole, UserRoleWithNames} from "../models/models";
+import {BadRequestError} from "../errors/errors";
 
 export class UserRoleUseCase {
     constructor(private readonly pool: Pool) {}
 
     assignRoleToUser = async (actorId: string, userId: string, roleId: string): Promise<UserRole> => {
-        if (!actorId) throw new Error("Actor ID is required");
+        if (!actorId) throw new BadRequestError("Actor ID is required");
 
         const client = await this.pool.connect();
 
@@ -36,7 +37,7 @@ export class UserRoleUseCase {
     }
 
     getUserRoles = async (actorId: string, userId: string): Promise<UserRoleWithNames[]> => {
-        if (!actorId) throw new Error("Actor ID is required");
+        if (!actorId) throw new BadRequestError("Actor ID is required");
 
         const client = await this.pool.connect();
 
@@ -63,7 +64,7 @@ export class UserRoleUseCase {
     }
 
     removeRoleFromUser = async (actorId: string, userId: string, roleId: string): Promise<UserRole> => {
-        if (!actorId) throw new Error("Actor ID is required");
+        if (!actorId) throw new BadRequestError("Actor ID is required");
 
         const client = await this.pool.connect();
 

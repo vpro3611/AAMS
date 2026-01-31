@@ -2,13 +2,14 @@ import {Pool} from "pg";
 import {AuditAction, AuditEvent} from "../models/models";
 import {AuditRepository} from "../repositories/audit_repository";
 import {AuditService} from "../services/audit_service";
+import {BadRequestError} from "../errors/errors";
 
 
 export class AuditUseCase {
     constructor(private readonly pool: Pool) {}
 
     getAuditEvents = async (actorId: string): Promise<AuditEvent[]> => {
-        if (!actorId) throw new Error("Actor ID is required");
+        if (!actorId) throw new BadRequestError("Actor ID is required");
 
         const client = await this.pool.connect();
 

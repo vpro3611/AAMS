@@ -4,6 +4,7 @@ import {RoleRepository} from "../repositories/role_repository";
 import {AuditRepository} from "../repositories/audit_repository";
 import {RoleService} from "../services/role_service";
 import {AuditService} from "../services/audit_service";
+import {BadRequestError} from "../errors/errors";
 
 
 export class RolesUseCase {
@@ -11,7 +12,7 @@ export class RolesUseCase {
 
     createRole = async (userId: string, newRole: NewRole): Promise<Role | null> => {
         if (!userId) {
-            throw new Error("User ID is required");
+            throw new BadRequestError("User ID is required");
         }
 
         const client = await this.pool.connect();
@@ -39,7 +40,7 @@ export class RolesUseCase {
 
     findRoleByName = async (userId: string, roleName: string): Promise<Role | null> => {
         if (!userId) {
-            throw new Error("User ID is required");
+            throw new BadRequestError("User ID is required");
         }
 
         const client = await this.pool.connect();
@@ -67,7 +68,7 @@ export class RolesUseCase {
 
     getAllRoles = async (userId: string): Promise<Role[]> => {
         if (!userId) {
-            throw new Error("User ID is required");
+            throw new BadRequestError("User ID is required");
         }
 
         const client = await this.pool.connect();
@@ -95,7 +96,7 @@ export class RolesUseCase {
 
     updateRole = async (userId: string, roleId: string, newRole: NewRole): Promise<Role> => {
         if (!userId) {
-            throw new Error("User ID is required");
+            throw new BadRequestError("User ID is required");
         }
 
         const client = await this.pool.connect();
@@ -123,7 +124,7 @@ export class RolesUseCase {
 
     deleteRole = async (userId: string, roleId: string): Promise<Role | null> => {
         if (!userId) {
-            throw new Error("User ID is required");
+            throw new BadRequestError("User ID is required");
         }
 
         const client = await this.pool.connect();
