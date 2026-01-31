@@ -87,3 +87,26 @@ export enum AuditAction {
     REMOVE_ROLE_FROM_USER = "REMOVE_ROLE_FROM_USER",
     GET_AUDIT_EVENTS = "GET_AUDIT_EVENTS",
 }
+
+export enum UserStatus {
+    ACTIVE = "active",
+    BLOCKED = "blocked",
+}
+
+export enum ErrorCodes {
+    BAD_REQUEST = "BAD_REQUEST",
+    ROLE_NOT_FOUND = "ROLE_NOT_FOUND",
+    ROLE_PERSISTENCE_ERROR = "ROLE_PERSISTENCE_ERROR",
+    USER_ROLE_NOT_FOUND = "USER_ROLE_NOT_FOUND",
+    USER_ROLE_PERSISTENCE_ERROR = "USER_ROLE_PERSISTENCE_ERROR",
+    USER_NOT_FOUND = "USER_NOT_FOUND",
+    USER_CONFLICT = "USER_CONFLICT",
+}
+
+export enum ErrorMessages {
+    ROLE_NOT_FOUND = "Role not found",
+    ROLE_PERSISTENCE_ERROR = "Role could not be persisted",
+    USER_ROLE_NOT_FOUND = "User role not found",
+    USER_ROLE_PERSISTENCE_ERROR = "User role could not be persisted",
+    USER_NOT_FOUND = "User not found",
+}
