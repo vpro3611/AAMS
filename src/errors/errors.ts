@@ -1,3 +1,5 @@
+import {ErrorCodes, ErrorMessages} from "../models/models";
+
 export abstract class DomainError extends Error {
     abstract readonly httpStatus: number;
     abstract readonly code: string;
@@ -9,7 +11,7 @@ export abstract class DomainError extends Error {
 
 export class BadRequestError extends DomainError {
     readonly httpStatus = 400;
-    readonly code = 'BAD_REQUEST';
+    readonly code = ErrorCodes.BAD_REQUEST;
 
     constructor(message: string) {
         super(message);
@@ -18,52 +20,52 @@ export class BadRequestError extends DomainError {
 
 export class RoleNotFoundError extends DomainError {
     readonly httpStatus = 404;
-    readonly code = 'ROLE_NOT_FOUND';
+    readonly code = ErrorCodes.ROLE_NOT_FOUND;
 
     constructor() {
-        super('Role not found');
+        super(ErrorMessages.ROLE_NOT_FOUND);
     }
 }
 
 export class RolePersistenceError extends DomainError {
     readonly httpStatus = 409;
-    readonly code = 'ROLE_PERSISTENCE_ERROR';
+    readonly code = ErrorCodes.ROLE_PERSISTENCE_ERROR;
 
     constructor() {
-        super('Role could not be persisted');
+        super(ErrorMessages.ROLE_PERSISTENCE_ERROR);
     }
 }
 
 export class UserRoleNotFoundError extends DomainError {
     readonly httpStatus = 404;
-    readonly code = 'USER_ROLE_NOT_FOUND';
+    readonly code = ErrorCodes.USER_ROLE_NOT_FOUND;
 
     constructor() {
-        super('User role not found');
+        super(ErrorMessages.USER_ROLE_NOT_FOUND);
     }
 }
 
 export class UserRolePersistenceError extends DomainError {
     readonly httpStatus = 409;
-    readonly code = 'USER_ROLE_PERSISTENCE_ERROR';
+    readonly code = ErrorCodes.USER_ROLE_PERSISTENCE_ERROR;
 
     constructor() {
-        super('User role could not be persisted');
+        super(ErrorMessages.USER_ROLE_PERSISTENCE_ERROR);
     }
 }
 
 export class UserNotFoundError extends DomainError {
     readonly httpStatus = 404;
-    readonly code = 'USER_NOT_FOUND';
+    readonly code = ErrorCodes.USER_NOT_FOUND;
 
     constructor() {
-        super('User not found');
+        super(ErrorMessages.USER_NOT_FOUND);
     }
 }
 
 export class UserConflictError extends DomainError {
     readonly httpStatus = 409;
-    readonly code = 'USER_CONFLICT';
+    readonly code = ErrorCodes.USER_CONFLICT;
 
     constructor(message: string) {
         super(message);
