@@ -129,12 +129,6 @@ export type LoginDTO = {
     password: string
 }
 
-export enum RolesOfUser {
-    ADMIN = "admin",
-    MODERATOR = "moderator",
-    USER = "user",
-}
-
 export interface TokenService {
     generateToken(userId: string): string;
     verifyToken(token: string): { sub: string };
