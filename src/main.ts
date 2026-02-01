@@ -56,10 +56,16 @@ async function main() {
     app.use(express.json());
     app.use(express.urlencoded({extended: true}));
 
-    // app.use(authMiddleware(tokenService));
+    const publicRouter = express.Router();
+    publicRouter.post('/register', registrationController.registerUser);
+    publicRouter.post('/login', loginController.login);
 
-    app.post('/register', registrationController.registerUser);
-    app.post('/login', loginController.login);
+    const privateRouter = express.Router();
+    privateRouter.use(authMiddleware(tokenService));
+
+
+    app.use(publicRouter);
+    app.use(privateRouter);
 
     app.listen(serverPort, () => console.log(`Server started on port ${serverPort}`));
 
