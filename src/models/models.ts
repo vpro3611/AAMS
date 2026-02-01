@@ -101,6 +101,7 @@ export enum ErrorCodes {
     USER_ROLE_PERSISTENCE_ERROR = "USER_ROLE_PERSISTENCE_ERROR",
     USER_NOT_FOUND = "USER_NOT_FOUND",
     USER_CONFLICT = "USER_CONFLICT",
+    UNAUTHORIZED = "UNAUTHORIZED",
 }
 
 export enum ErrorMessages {
@@ -109,4 +110,20 @@ export enum ErrorMessages {
     USER_ROLE_NOT_FOUND = "User role not found",
     USER_ROLE_PERSISTENCE_ERROR = "User role could not be persisted",
     USER_NOT_FOUND = "User not found",
+    UNAUTHORIZED = "Unauthorized",
+}
+
+export type RegisterDTO = {
+        email: string,
+        password: string
+}
+
+export type LoginDTO = {
+    email: string,
+    password: string
+}
+
+export interface TokenService {
+    generateToken(userId: string): string;
+    verifyToken(token: string): { sub: string };
 }
