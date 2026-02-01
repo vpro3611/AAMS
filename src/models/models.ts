@@ -111,6 +111,8 @@ export enum ErrorMessages {
     USER_ROLE_PERSISTENCE_ERROR = "User role could not be persisted",
     USER_NOT_FOUND = "User not found",
     UNAUTHORIZED = "Unauthorized",
+    TOO_SHORT_PASSWORD = "Password is too short. Minimum length is 8 characters",
+    TOO_SHORT_EMAIL = "Email is too short. Minimum length is 5 characters",
 }
 
 export type RegisterDTO = {
