@@ -18,6 +18,9 @@ import {RolesUseCase} from "./usecases/roles_use_case";
 import {RegisterController} from "./authentification/registration_controller";
 import {LoginController} from "./authentification/login_controller";
 import {authMiddleware} from "./middlewares/auth_middleware";
+import {loggerMiddleware, ResponseLoggerMiddleware} from "./middlewares/loggers_middlewares";
+import {errorsMiddleware} from "./middlewares/errors_middleware";
+
 
 async function main() {
     const app = express();
@@ -55,6 +58,10 @@ async function main() {
 
     app.use(express.json());
     app.use(express.urlencoded({extended: true}));
+    app.use(loggerMiddleware())
+    app.use(ResponseLoggerMiddleware())
+
+    app.get('/', (req, res) => res.send('Hello World!'));
 
     const publicRouter = express.Router();
     publicRouter.post('/register', registrationController.registerUser);
@@ -64,9 +71,10 @@ async function main() {
     privateRouter.use(authMiddleware(tokenService));
 
 
-    app.use(publicRouter);
-    app.use(privateRouter);
+    app.use("/", publicRouter);
+    app.use("/api", privateRouter);
 
+    app.use(errorsMiddleware())
     app.listen(serverPort, () => console.log(`Server started on port ${serverPort}`));
 
 }
