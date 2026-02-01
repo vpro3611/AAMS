@@ -80,3 +80,21 @@ export class UnauthorizedError extends DomainError {
         super(ErrorMessages.UNAUTHORIZED);
     }
 }
+
+export class InvalidTokenError extends DomainError {
+    readonly httpStatus = 401;
+    readonly code = ErrorCodes.INVALID_TOKEN;
+
+    constructor() {
+        super(ErrorMessages.INVALID_TOKEN);
+    }
+}
+
+export class UserBlockedError extends DomainError {
+    readonly httpStatus = 403;
+    readonly code = ErrorCodes.USER_BLOCKED;
+
+    constructor() {
+        super(ErrorMessages.USER_BLOCKED);
+    }
+}
