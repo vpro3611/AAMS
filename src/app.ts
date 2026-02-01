@@ -8,13 +8,18 @@ import { authMiddleware } from "./middlewares/auth_middleware";
 import { userStatusCheckMiddleware } from "./middlewares/user_status_check_middleware";
 import { setUserStatus } from "./middlewares/user_status_check_middleware";
 import { errorsMiddleware } from "./middlewares/errors_middleware";
+import {TokenService} from "./models/models";
+import {UserService} from "./services/user_service";
+import {RegisterController} from "./authentification_controllers/registration_controller";
+import {LoginController} from "./authentification_controllers/login_controller";
+import {UserController} from "./user_controllers/user_controllers";
 
 export function createApp(deps: {
-    tokenService: any;
-    userServ: any;
-    registrationController: any;
-    loginController: any;
-    userController: any;
+    tokenService: TokenService;
+    userServ: UserService;
+    registrationController: RegisterController;
+    loginController: LoginController;
+    userController: UserController;
 }) {
     const app = express();
 
