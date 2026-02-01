@@ -17,6 +17,7 @@ import {UserRoleUseCase} from "./usecases/user_role_use_case";
 import {RolesUseCase} from "./usecases/roles_use_case";
 import {RegisterController} from "./authentification/registration_controller";
 import {LoginController} from "./authentification/login_controller";
+import {authMiddleware} from "./middlewares/auth_middleware";
 
 async function main() {
     const app = express();
@@ -55,6 +56,7 @@ async function main() {
     app.use(express.json());
     app.use(express.urlencoded({extended: true}));
 
+    // app.use(authMiddleware(tokenService));
 
     app.post('/register', registrationController.registerUser);
     app.post('/login', loginController.login);
