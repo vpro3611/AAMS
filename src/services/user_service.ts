@@ -19,7 +19,7 @@ export class UserService {
 
         if (checkUser) throw new UserConflictError("User already exists");
 
-        if (!this.checkEmail) throw new BadRequestError("Invalid email format")
+        if (!this.checkEmail(newUser.email)) throw new BadRequestError("Invalid email format")
 
         return await this.userRepo.createUser(newUser);
     }
