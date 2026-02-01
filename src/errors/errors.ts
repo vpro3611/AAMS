@@ -72,3 +72,11 @@ export class UserConflictError extends DomainError {
     }
 }
 
+export class UnauthorizedError extends DomainError {
+    readonly httpStatus = 401;
+    readonly code = ErrorCodes.UNAUTHORIZED;
+
+    constructor() {
+        super(ErrorMessages.UNAUTHORIZED);
+    }
+}
