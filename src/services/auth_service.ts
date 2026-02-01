@@ -1,7 +1,7 @@
-import {LoginDTO, RegisterDTO, User} from "../models/models";
+import {ErrorMessages, LoginDTO, RegisterDTO, User} from "../models/models";
 import {BcryptPassHasher} from "../security/hashers";
 import {UserService} from "./user_service";
-import {UnauthorizedError} from "../errors/errors";
+import {BadRequestError, UnauthorizedError} from "../errors/errors";
 import {JwtTokenService} from "./jwt_token_service";
 import {UserUseCase} from "../usecases/user_use_case";
 
@@ -14,7 +14,10 @@ export class AuthService {
     ) {}
 
     register = async (dto: RegisterDTO): Promise<User> => {
+        if (dto.password.length < 8) throw new BadRequestError(ErrorMessages.TOO_SHORT_PASSWORD)
+        if (dto.email.length < 5) throw new BadRequestError(ErrorMessages.TOO_SHORT_EMAIL)
         const hashedPassword = await this.hasher.hashPassword(dto.password);
+
         return this.userUseCase.createUser({
             email: dto.email,
             password_hash: hashedPassword
