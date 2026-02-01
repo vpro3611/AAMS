@@ -102,6 +102,8 @@ export enum ErrorCodes {
     USER_NOT_FOUND = "USER_NOT_FOUND",
     USER_CONFLICT = "USER_CONFLICT",
     UNAUTHORIZED = "UNAUTHORIZED",
+    USER_BLOCKED = "USER_BLOCKED",
+    INVALID_TOKEN = "INVALID_TOKEN",
 }
 
 export enum ErrorMessages {
@@ -113,6 +115,8 @@ export enum ErrorMessages {
     UNAUTHORIZED = "Unauthorized",
     TOO_SHORT_PASSWORD = "Password is too short. Minimum length is 8 characters",
     TOO_SHORT_EMAIL = "Email is too short. Minimum length is 5 characters",
+    USER_BLOCKED = "User is blocked",
+    INVALID_TOKEN = "Invalid token",
 }
 
 export type RegisterDTO = {
@@ -123,6 +127,12 @@ export type RegisterDTO = {
 export type LoginDTO = {
     email: string,
     password: string
+}
+
+export enum RolesOfUser {
+    ADMIN = "admin",
+    MODERATOR = "moderator",
+    USER = "user",
 }
 
 export interface TokenService {
