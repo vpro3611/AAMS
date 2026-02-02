@@ -10,7 +10,7 @@ import {BadRequestError} from "../errors/errors";
 export class RolesUseCase {
     constructor(private readonly pool: Pool) {}
 
-    createRole = async (userId: string, newRole: NewRole): Promise<Role | null> => {
+    createRole = async (userId: string, newRole: NewRole): Promise<Role> => {
         if (!userId) {
             throw new BadRequestError("User ID is required");
         }
@@ -38,7 +38,7 @@ export class RolesUseCase {
         }
     }
 
-    findRoleByName = async (userId: string, roleName: string): Promise<Role | null> => {
+    findRoleByName = async (userId: string, roleName: string): Promise<Role> => {
         if (!userId) {
             throw new BadRequestError("User ID is required");
         }
@@ -122,7 +122,7 @@ export class RolesUseCase {
         }
     }
 
-    deleteRole = async (userId: string, roleId: string): Promise<Role | null> => {
+    deleteRole = async (userId: string, roleId: string): Promise<Role> => {
         if (!userId) {
             throw new BadRequestError("User ID is required");
         }
