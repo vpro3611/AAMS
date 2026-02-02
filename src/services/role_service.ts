@@ -8,6 +8,9 @@ export class RoleService {
 
     createNewRole = async (newRole: NewRole): Promise<Role> => {
         if (!newRole) throw new BadRequestError("New role cannot be null or undefined");
+        if (newRole.name.trim().length < 1) throw new BadRequestError(
+            "Role name cannot be empty or consist of only whitespaces"
+        )
         const res = await this.roleRepo.createRole(newRole);
         if (!res) throw new RolePersistenceError();
         return res;
@@ -27,6 +30,7 @@ export class RoleService {
     updateRole = async (roleId: string, newRole: NewRole): Promise<Role> => {
         if (!roleId) throw new BadRequestError("Role id cannot be null or undefined");
         if (!newRole) throw new BadRequestError("New role cannot be null or undefined");
+        if (newRole.name.trim().length < 1) throw new BadRequestError("Role name cannot be empty or consist of only whitespaces")
         const updated = await this.roleRepo.updateRole(roleId, newRole);
         if (!updated) throw new RoleNotFoundError();
         return updated;
