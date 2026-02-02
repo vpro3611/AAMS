@@ -36,6 +36,7 @@ export class UserUseCase {
     }
 
     blockUser = async (actorId: string, userId: string): Promise<User> => {
+        if (actorId === userId) throw new BadRequestError("Cannot block yourself")
         if (!actorId) throw new BadRequestError("Actor ID is required");
 
         const client = await this.pool.connect();
@@ -63,6 +64,7 @@ export class UserUseCase {
     }
 
      unblockUser = async (actorId: string, userId: string): Promise<User> => {
+        if (actorId === userId) throw new BadRequestError("Cannot unblock yourself")
         if (!actorId) throw new BadRequestError("Actor ID is required");
 
         const client = await this.pool.connect();
@@ -90,6 +92,7 @@ export class UserUseCase {
     }
 
     findUserById = async (actorId: string, userId: string): Promise<User> => {
+        if (actorId === userId) throw new BadRequestError("Cannot find yourself by id")
         if (!actorId) throw new BadRequestError("Actor ID is required");
 
         const client = await this.pool.connect();
@@ -171,6 +174,7 @@ export class UserUseCase {
     }
 
     deleteUser = async (actorId: string, userId: string): Promise<User> => {
+        if (actorId === userId) throw new BadRequestError("Cannot delete yourself")
         if (!actorId) throw new BadRequestError("Actor ID is required");
 
         const client = await this.pool.connect();

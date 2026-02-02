@@ -1,12 +1,12 @@
 import {NextFunction, Request, Response} from "express";
 
-declare global {
-    namespace Express {
-        interface Request {
-            userID?: string;
-        }
-    }
-}
+// declare global {
+//     namespace Express {
+//         interface Request {
+//             userID?: string;
+//         }
+//     }
+// }
 
 export const loggerMiddleware = () => {
     return (req: Request, res: Response, next: NextFunction) => {

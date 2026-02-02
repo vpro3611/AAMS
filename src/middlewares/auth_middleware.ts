@@ -1,10 +1,14 @@
 import {TokenService} from "../models/models";
 import {NextFunction, Request, Response} from "express";
+import {InvalidTokenError, UnauthorizedError} from "../errors/errors";
+
+// changing global interface of express
 
 declare global {
     namespace Express {
         interface Request {
             userID?: string;
+            userStatus?: string;
         }
     }
 }
@@ -32,13 +36,13 @@ export const authMiddleware = (tokenService: TokenService) => {
         const authHeader = req.headers.authorization;
 
         if (!authHeader) {
-            return res.status(401).json({ message: "Unauthorized" });
+            return next(new UnauthorizedError())
         }
 
         const [type, token] = authHeader.split(" ");
 
         if (type !== "Bearer" || !token) {
-            return res.status(401).json({ message: "Unauthorized" });
+            return next(new UnauthorizedError())
         }
 
         try {
@@ -46,7 +50,7 @@ export const authMiddleware = (tokenService: TokenService) => {
             req.userID = payload.sub;
             return next();
         } catch (error) {
-            return res.status(401).json({ message: "Invalid token" });
+            return next(new InvalidTokenError())
         }
     };
 };
