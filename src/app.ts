@@ -64,6 +64,9 @@ export function createApp(deps: {
     privateRouter.post("/role/delete", deps.roleController.deleteRole);
 
     privateRouter.get("/audit_logs", deps.auditController.getAuditLogs);
+    privateRouter.post("/audit_logs/get_user", deps.auditController.getAuditLogsByUserId);
+    privateRouter.post("/audit_logs/get_action", deps.auditController.getAuditLogsByAction);
+
 
     app.use("/api", privateRouter);
 
