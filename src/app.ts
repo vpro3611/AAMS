@@ -14,6 +14,7 @@ import {RegisterController} from "./authentification_controllers/registration_co
 import {LoginController} from "./authentification_controllers/login_controller";
 import {UserController} from "./user_controllers/user_controllers";
 import {RoleController} from "./role_controllers/role_controllers";
+import {AuditController} from "./audit_controller/audit_controller";
 
 export function createApp(deps: {
     tokenService: TokenService;
@@ -22,6 +23,7 @@ export function createApp(deps: {
     loginController: LoginController;
     userController: UserController;
     roleController: RoleController;
+    auditController: AuditController;
 }) {
     const app = express();
 
@@ -60,6 +62,8 @@ export function createApp(deps: {
     privateRouter.get("/roles", deps.roleController.getAllRoles);
     privateRouter.patch("/role/update", deps.roleController.updateRole);
     privateRouter.post("/role/delete", deps.roleController.deleteRole);
+
+    privateRouter.get("/audit_logs", deps.auditController.getAuditLogs);
 
     app.use("/api", privateRouter);
 
