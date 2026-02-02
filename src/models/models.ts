@@ -129,6 +129,11 @@ export type LoginDTO = {
     password: string
 }
 
+export type UpdateRoleDTO = {
+    role_id: string,
+    name: string
+}
+
 export interface TokenService {
     generateToken(userId: string): string;
     verifyToken(token: string): { sub: string };

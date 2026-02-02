@@ -14,7 +14,6 @@ export class UserService {
         if (!newUser.email || !newUser.password_hash) {
             throw new BadRequestError("Invalid user data");
         }
-
         const checkUser = await this.userRepo.findUserByEmail(newUser.email);
 
         if (checkUser) throw new UserConflictError("User already exists");

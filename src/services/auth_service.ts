@@ -14,8 +14,8 @@ export class AuthService {
     ) {}
 
     register = async (dto: RegisterDTO): Promise<User> => {
-        if (dto.password.length < 8) throw new BadRequestError(ErrorMessages.TOO_SHORT_PASSWORD)
-        if (dto.email.length < 5) throw new BadRequestError(ErrorMessages.TOO_SHORT_EMAIL)
+        if (dto.password.trim().length < 8) throw new BadRequestError(ErrorMessages.TOO_SHORT_PASSWORD)
+        if (dto.email.trim().length < 5) throw new BadRequestError(ErrorMessages.TOO_SHORT_EMAIL)
         const hashedPassword = await this.hasher.hashPassword(dto.password);
 
         return this.userUseCase.createUser({
