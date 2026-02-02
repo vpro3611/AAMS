@@ -56,7 +56,7 @@ export class AuditUseCase {
         }
     }
 
-    getAuditEventsByAction = async (actorId: string, action: AuditAction): Promise<AuditEvent[]> => {
+    getAuditEventsByAction = async (actorId: string, action: string): Promise<AuditEvent[]> => {
         if (!actorId) throw new BadRequestError("Actor ID is required");
 
         const client = await this.pool.connect();
