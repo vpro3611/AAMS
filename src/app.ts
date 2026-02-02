@@ -13,6 +13,7 @@ import {UserService} from "./services/user_service";
 import {RegisterController} from "./authentification_controllers/registration_controller";
 import {LoginController} from "./authentification_controllers/login_controller";
 import {UserController} from "./user_controllers/user_controllers";
+import {RoleController} from "./role_controllers/role_controllers";
 
 export function createApp(deps: {
     tokenService: TokenService;
@@ -20,6 +21,7 @@ export function createApp(deps: {
     registrationController: RegisterController;
     loginController: LoginController;
     userController: UserController;
+    roleController: RoleController;
 }) {
     const app = express();
 
@@ -52,6 +54,12 @@ export function createApp(deps: {
     privateRouter.post("/user/get_email", deps.userController.findUserByEmail);
     privateRouter.get("/users", deps.userController.getAllUsers);
     privateRouter.post("/user/delete", deps.userController.deleteUser);
+
+    privateRouter.post("/role", deps.roleController.createRole);
+    privateRouter.post("/role/get_name", deps.roleController.findRoleByName)
+    privateRouter.get("/roles", deps.roleController.getAllRoles);
+    privateRouter.patch("/role/update", deps.roleController.updateRole);
+    privateRouter.post("/role/delete", deps.roleController.deleteRole);
 
     app.use("/api", privateRouter);
 
