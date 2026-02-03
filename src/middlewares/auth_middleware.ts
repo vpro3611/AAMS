@@ -9,6 +9,7 @@ declare global {
         interface Request {
             userID?: string;
             userStatus?: string;
+            userRoles?: string[];
         }
     }
 }

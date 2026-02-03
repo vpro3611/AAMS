@@ -98,3 +98,12 @@ export class UserBlockedError extends DomainError {
         super(ErrorMessages.USER_BLOCKED);
     }
 }
+
+export class ForbiddenError extends DomainError {
+    readonly httpStatus = 403;
+    readonly code = ErrorCodes.FORBIDDEN;
+
+    constructor() {
+        super(ErrorMessages.FORBIDDEN);
+    }
+}

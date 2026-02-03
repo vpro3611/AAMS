@@ -18,7 +18,7 @@ export class AuthService {
         if (dto.email.trim().length < 5) throw new BadRequestError(ErrorMessages.TOO_SHORT_EMAIL)
         const hashedPassword = await this.hasher.hashPassword(dto.password);
 
-        return this.userUseCase.createUser({
+        return this.userUseCase.registerUserWithDefaultRole({
             email: dto.email,
             password_hash: hashedPassword
         })

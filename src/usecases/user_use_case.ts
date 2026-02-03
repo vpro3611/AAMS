@@ -1,14 +1,19 @@
 import {Pool} from "pg";
-import {NewUser, User} from "../models/models";
+import {NewUser, Roles, User} from "../models/models";
 import {UserRepository} from "../repositories/user_repository";
 import {AuditRepository} from "../repositories/audit_repository";
 import {UserService} from "../services/user_service";
 import {AuditService} from "../services/audit_service";
 import {AuditAction} from "../models/models";
 import {BadRequestError} from "../errors/errors";
+import {RoleRepository} from "../repositories/role_repository";
+import {RoleService} from "../services/role_service";
+import {UserRoleRepository} from "../repositories/user_role_repository";
+import {UserRoleService} from "../services/user_role_service";
 
 export class UserUseCase {
-    constructor(private readonly pool: Pool) {}
+    constructor(private readonly pool: Pool) {
+    }
 
     createUser = async (newUser: NewUser): Promise<User> => {
         const client = await this.pool.connect();
@@ -63,7 +68,7 @@ export class UserUseCase {
         }
     }
 
-     unblockUser = async (actorId: string, userId: string): Promise<User> => {
+    unblockUser = async (actorId: string, userId: string): Promise<User> => {
         if (actorId === userId) throw new BadRequestError("Cannot unblock yourself")
         if (!actorId) throw new BadRequestError("Actor ID is required");
 
@@ -190,6 +195,38 @@ export class UserUseCase {
 
             const user = await userServ.deleteUser(userId)
             await auditServ.log(actorId, AuditAction.DELETE_USER)
+
+            await client.query("COMMIT");
+            return user;
+        } catch (e) {
+            await client.query("ROLLBACK");
+            throw e;
+        } finally {
+            client.release();
+        }
+    }
+
+    registerUserWithDefaultRole = async (newUser: NewUser): Promise<User> => {
+        const client = await this.pool.connect();
+
+        try {
+            await client.query("BEGIN");
+
+            const userRepo = new UserRepository(client);
+            const userServ = new UserService(userRepo);
+            const roleRepo = new RoleRepository(client);
+            const roleServ = new RoleService(roleRepo);
+            const userRoleRepo = new UserRoleRepository(client);
+            const userRoleServ = new UserRoleService(userRoleRepo);
+
+            const user = await userServ.createUser(newUser)
+
+            let role = await roleRepo.findRoleByName(Roles.USER);
+
+            if (!role) {
+                role = await roleServ.createNewRole({name: Roles.USER});
+            }
+            await userRoleServ.assignRoleToUser(user.id, role.id)
 
             await client.query("COMMIT");
             return user;
