@@ -1,7 +1,6 @@
 import { AuthService } from "../src/services/auth_service";
-import { BadRequestError } from "../src/errors/errors";
-import { UnauthorizedError } from "../src/errors/errors";
-import {ErrorMessages, UserStatus} from "../src/models/models";
+import { BadRequestError, UnauthorizedError } from "../src/errors/errors";
+import { ErrorMessages, UserStatus } from "../src/models/models";
 import { User } from "../src/models/models";
 
 describe("AuthService (unit)", () => {
@@ -18,8 +17,9 @@ describe("AuthService (unit)", () => {
             comparePasswords: jest.fn(),
         };
 
+        // ✅ ИСПРАВЛЕНО ЗДЕСЬ
         userUseCaseMock = {
-            createUser: jest.fn(),
+            registerUserWithDefaultRole: jest.fn(),
         };
 
         userServMock = {
@@ -50,7 +50,7 @@ describe("AuthService (unit)", () => {
             ).rejects.toBeInstanceOf(BadRequestError);
 
             expect(hasherMock.hashPassword).not.toHaveBeenCalled();
-            expect(userUseCaseMock.createUser).not.toHaveBeenCalled();
+            expect(userUseCaseMock.registerUserWithDefaultRole).not.toHaveBeenCalled();
         });
 
         it("throws error if email is too short", async () => {
@@ -62,7 +62,7 @@ describe("AuthService (unit)", () => {
             ).rejects.toBeInstanceOf(BadRequestError);
 
             expect(hasherMock.hashPassword).not.toHaveBeenCalled();
-            expect(userUseCaseMock.createUser).not.toHaveBeenCalled();
+            expect(userUseCaseMock.registerUserWithDefaultRole).not.toHaveBeenCalled();
         });
 
         it("hashes password and creates user for valid input", async () => {
@@ -82,13 +82,13 @@ describe("AuthService (unit)", () => {
             };
 
             hasherMock.hashPassword.mockResolvedValue(hashedPassword);
-            userUseCaseMock.createUser.mockResolvedValue(createdUser);
+            userUseCaseMock.registerUserWithDefaultRole.mockResolvedValue(createdUser);
 
             const result = await authService.register(dto);
 
             expect(hasherMock.hashPassword).toHaveBeenCalledWith(dto.password);
 
-            expect(userUseCaseMock.createUser).toHaveBeenCalledWith({
+            expect(userUseCaseMock.registerUserWithDefaultRole).toHaveBeenCalledWith({
                 email: dto.email,
                 password_hash: hashedPassword,
             });
