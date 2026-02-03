@@ -22,8 +22,9 @@ import { BcryptPassHasher } from "./security/hashers";
 
 import { RegisterController } from "./authentification_controllers/registration_controller";
 import { LoginController } from "./authentification_controllers/login_controller";
-import { UserController } from "./user_controllers/user_controllers";
-import {RoleController} from "./role_controllers/role_controllers";
+import { UserController } from "./controllers/user_controllers";
+import {RoleController} from "./controllers/role_controllers";
+import {AuditController} from "./controllers/audit_controller";
 
 export function buildContainer() {
     // repositories
@@ -59,6 +60,7 @@ export function buildContainer() {
     const loginController = new LoginController(authService);
     const userController = new UserController(userUseCase);
     const roleController = new RoleController(rolesUseCase);
+    const auditController = new AuditController(auditUseCase);
 
     return {
         tokenService,
@@ -68,5 +70,6 @@ export function buildContainer() {
         loginController,
         userController,
         roleController,
+        auditController,
     };
 }

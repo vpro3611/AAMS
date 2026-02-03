@@ -30,4 +30,16 @@ export class AuditRepository {
 
         return res.rows.map(this.mapAuditEvent);
     }
+
+    getAuditEventByUserId = async (userId: string): Promise<AuditEvent[]> => {
+        const res = await this.client.query('SELECT * FROM audit_events WHERE actor_user_id = $1', [userId]);
+        if (res.rowCount === 0) return [];
+        return res.rows.map(this.mapAuditEvent);
+    }
+
+    getAuditEventByAction = async (action: string): Promise<AuditEvent[]> => {
+        const res = await this.client.query('SELECT * FROM audit_events WHERE action = $1', [action]);
+        if (res.rowCount === 0) return [];
+        return res.rows.map(this.mapAuditEvent);
+    }
 }
