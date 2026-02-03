@@ -97,8 +97,9 @@ export enum UserStatus {
 
 // enum for roles, if you add a new role, expand it.
 export enum Roles {
-    ADMIN = "admin",
-    USER = "user",
+    ADMIN = "ADMIN",
+    USER = "USER",
+    MODERATOR = "MODERATOR",
 }
 
 
@@ -113,6 +114,7 @@ export enum ErrorCodes {
     UNAUTHORIZED = "UNAUTHORIZED",
     USER_BLOCKED = "USER_BLOCKED",
     INVALID_TOKEN = "INVALID_TOKEN",
+    FORBIDDEN = "FORBIDDEN",
 }
 
 export enum ErrorMessages {
@@ -126,6 +128,7 @@ export enum ErrorMessages {
     TOO_SHORT_EMAIL = "Email is too short. Minimum length is 5 characters",
     USER_BLOCKED = "User is blocked",
     INVALID_TOKEN = "Invalid token",
+    FORBIDDEN = "Forbidden due to non-admin role",
 }
 
 export type RegisterDTO = {
