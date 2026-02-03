@@ -95,6 +95,13 @@ export enum UserStatus {
     BLOCKED = "blocked",
 }
 
+// enum for roles, if you add a new role, expand it.
+export enum Roles {
+    ADMIN = "admin",
+    USER = "user",
+}
+
+
 export enum ErrorCodes {
     BAD_REQUEST = "BAD_REQUEST",
     ROLE_NOT_FOUND = "ROLE_NOT_FOUND",
