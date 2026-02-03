@@ -25,6 +25,7 @@ import { LoginController } from "./authentification_controllers/login_controller
 import { UserController } from "./controllers/user_controllers";
 import {RoleController} from "./controllers/role_controllers";
 import {AuditController} from "./controllers/audit_controller";
+import {UserRoleController} from "./controllers/user_role_controller";
 
 export function buildContainer() {
     // repositories
@@ -61,6 +62,7 @@ export function buildContainer() {
     const userController = new UserController(userUseCase);
     const roleController = new RoleController(rolesUseCase);
     const auditController = new AuditController(auditUseCase);
+    const userRoleController = new UserRoleController(userRoleUseCase);
 
     return {
         tokenService,
@@ -71,5 +73,6 @@ export function buildContainer() {
         userController,
         roleController,
         auditController,
+        userRoleController,
     };
 }
