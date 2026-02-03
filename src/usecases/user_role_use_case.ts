@@ -11,7 +11,7 @@ export class UserRoleUseCase {
 
     assignRoleToUser = async (actorId: string, userId: string, roleId: string): Promise<UserRole> => {
         if (!actorId) throw new BadRequestError("Actor ID is required");
-
+        if (actorId === userId) throw new BadRequestError("Cannot assign role to yourself")
         const client = await this.pool.connect();
 
         try {
@@ -65,7 +65,7 @@ export class UserRoleUseCase {
 
     removeRoleFromUser = async (actorId: string, userId: string, roleId: string): Promise<UserRole> => {
         if (!actorId) throw new BadRequestError("Actor ID is required");
-
+        if (actorId === userId) throw new BadRequestError("Cannot remove role from yourself")
         const client = await this.pool.connect();
 
         try {
