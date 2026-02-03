@@ -74,5 +74,6 @@ export function buildContainer() {
         roleController,
         auditController,
         userRoleController,
+        userRoleServ,
     };
 }
