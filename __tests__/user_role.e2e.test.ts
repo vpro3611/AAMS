@@ -13,15 +13,17 @@ describe("UserRole API (integration)", () => {
     let user: any;
     let role: any;
 
+    const ADMIN_ROLE = "ADMIN";
+
     // ─────────────────────────────
     // helpers
     // ─────────────────────────────
     const createUser = async (email: string) => {
         const res = await pool.query(
             `
-            INSERT INTO users (email, password_hash, status)
-            VALUES ($1, 'hash', 'active')
-            RETURNING *
+                INSERT INTO users (email, password_hash, status)
+                VALUES ($1, 'hash', 'active')
+                    RETURNING *
             `,
             [email]
         );
@@ -31,13 +33,39 @@ describe("UserRole API (integration)", () => {
     const createRole = async (name: string) => {
         const res = await pool.query(
             `
-            INSERT INTO roles (name)
-            VALUES ($1)
-            RETURNING *
+                INSERT INTO roles (name)
+                VALUES ($1)
+                    RETURNING *
             `,
             [name]
         );
         return res.rows[0];
+    };
+
+    const assignRole = async (userId: string, roleId: string) => {
+        await pool.query(
+            `INSERT INTO user_roles (user_id, role_id) VALUES ($1, $2)`,
+            [userId, roleId]
+        );
+    };
+
+    const createAdminUser = async (email: string) => {
+        const user = await createUser(email);
+
+        let roleRes = await pool.query(
+            `SELECT * FROM roles WHERE name = $1`,
+            [ADMIN_ROLE]
+        );
+
+        let role = roleRes.rows[0];
+
+        if (!role) {
+            role = await createRole(ADMIN_ROLE);
+        }
+
+        await assignRole(user.id, role.id);
+
+        return user;
     };
 
     // ─────────────────────────────
@@ -50,17 +78,17 @@ describe("UserRole API (integration)", () => {
 
     beforeEach(async () => {
         await pool.query(`
-        TRUNCATE TABLE
-            audit_events,
-            user_roles,
-            roles,
-            users
-        RESTART IDENTITY CASCADE
-    `);
+            TRUNCATE TABLE
+                audit_events,
+                user_roles,
+                roles,
+                users
+            RESTART IDENTITY CASCADE
+        `);
 
-        actor = await createUser(`actor_${Date.now()}@test.com`);
+        actor = await createAdminUser(`admin_${Date.now()}@test.com`);
         user = await createUser(`user_${Date.now()}@test.com`);
-        role = await createRole("admin");
+        role = await createRole("MODERATOR");
 
         actorToken = jwt.sign(
             { sub: actor.id },
@@ -70,21 +98,20 @@ describe("UserRole API (integration)", () => {
 
     afterAll(async () => {
         await pool.query(`
-        TRUNCATE TABLE
-            audit_events,
-            user_roles,
-            roles,
-            users
-        RESTART IDENTITY CASCADE
-    `);
+            TRUNCATE TABLE
+                audit_events,
+                user_roles,
+                roles,
+                users
+            RESTART IDENTITY CASCADE
+        `);
         await pool.end();
     });
-
 
     // ─────────────────────────────
     // assign role
     // ─────────────────────────────
-    it("assigns role to user", async () => {
+    it("assigns role to user (ADMIN only)", async () => {
         const res = await request(app)
             .post("/api/assign_role")
             .set("Authorization", `Bearer ${actorToken}`)
@@ -96,13 +123,7 @@ describe("UserRole API (integration)", () => {
     });
 
     it("returns 409 when assigning duplicate role", async () => {
-        await pool.query(
-            `
-            INSERT INTO user_roles (user_id, role_id)
-            VALUES ($1, $2)
-            `,
-            [user.id, role.id]
-        );
+        await assignRole(user.id, role.id);
 
         const res = await request(app)
             .post("/api/assign_role")
@@ -116,13 +137,7 @@ describe("UserRole API (integration)", () => {
     // get user roles
     // ─────────────────────────────
     it("returns user roles", async () => {
-        await pool.query(
-            `
-            INSERT INTO user_roles (user_id, role_id)
-            VALUES ($1, $2)
-            `,
-            [user.id, role.id]
-        );
+        await assignRole(user.id, role.id);
 
         const res = await request(app)
             .post("/api/get_roles")
@@ -148,13 +163,7 @@ describe("UserRole API (integration)", () => {
     // remove role
     // ─────────────────────────────
     it("removes role from user", async () => {
-        await pool.query(
-            `
-            INSERT INTO user_roles (user_id, role_id)
-            VALUES ($1, $2)
-            `,
-            [user.id, role.id]
-        );
+        await assignRole(user.id, role.id);
 
         const res = await request(app)
             .post("/api/remove_role")

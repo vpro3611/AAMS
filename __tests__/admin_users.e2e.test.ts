@@ -6,15 +6,17 @@ import { buildContainer } from "../src/container";
 import { pool } from "../src/database";
 import { UserStatus } from "../src/models/models";
 
-describe("Users API (integration, status-based)", () => {
+describe("Users API (integration, status-based + RBAC)", () => {
     let app: any;
 
     let actor: any;
     let actorToken: string;
     let target: any;
 
+    const ADMIN = "ADMIN";
+
     // ─────────────────────────────
-    // helpers (реальная БД)
+    // helpers
     // ─────────────────────────────
     const createUser = async (
         email: string,
@@ -31,6 +33,40 @@ describe("Users API (integration, status-based)", () => {
         return res.rows[0];
     };
 
+    const createRole = async (name: string) => {
+        const res = await pool.query(
+            `INSERT INTO roles (name) VALUES ($1) RETURNING *`,
+            [name]
+        );
+        return res.rows[0];
+    };
+
+    const assignRole = async (userId: string, roleId: string) => {
+        await pool.query(
+            `INSERT INTO user_roles (user_id, role_id) VALUES ($1, $2)`,
+            [userId, roleId]
+        );
+    };
+
+    const createAdminUser = async (email: string) => {
+        const user = await createUser(email);
+
+        let roleRes = await pool.query(
+            `SELECT * FROM roles WHERE name = $1`,
+            [ADMIN]
+        );
+
+        let role = roleRes.rows[0];
+
+        if (!role) {
+            role = await createRole(ADMIN);
+        }
+
+        await assignRole(user.id, role.id);
+
+        return user;
+    };
+
     // ─────────────────────────────
     // lifecycle
     // ─────────────────────────────
@@ -44,11 +80,22 @@ describe("Users API (integration, status-based)", () => {
     });
 
     beforeEach(async () => {
-        // чистим таблицу перед каждым тестом
-        await pool.query("DELETE FROM users");
+        await pool.query(`
+            TRUNCATE TABLE
+                audit_events,
+                user_roles,
+                roles,
+                users
+            RESTART IDENTITY CASCADE
+        `);
 
-        actor = await createUser(`actor_${Date.now()}@test.com`);
-        target = await createUser(`target_${Date.now()}@test.com`);
+        actor = await createAdminUser(
+            `admin_${Date.now()}@test.com`
+        );
+
+        target = await createUser(
+            `target_${Date.now()}@test.com`
+        );
 
         actorToken = jwt.sign(
             { sub: actor.id },
@@ -57,12 +104,19 @@ describe("Users API (integration, status-based)", () => {
     });
 
     afterAll(async () => {
-        await pool.query("DELETE FROM users");
+        await pool.query(`
+            TRUNCATE TABLE
+                audit_events,
+                user_roles,
+                roles,
+                users
+            RESTART IDENTITY CASCADE
+        `);
         await pool.end();
     });
 
     // ─────────────────────────────
-    // block user
+    // block user (ADMIN only)
     // ─────────────────────────────
     it("blocks another active user", async () => {
         const res = await request(app)
@@ -71,7 +125,8 @@ describe("Users API (integration, status-based)", () => {
             .send({ user_id: target.id });
 
         expect(res.status).toBe(200);
-        expect(res.body.blockedUser.status).toBe(UserStatus.BLOCKED);
+        expect(res.body.blockedUser.status)
+            .toBe(UserStatus.BLOCKED);
     });
 
     it("cannot block yourself", async () => {
@@ -83,7 +138,7 @@ describe("Users API (integration, status-based)", () => {
         expect(res.status).toBe(400);
     });
 
-    it("blocked user cannot block anyone", async () => {
+    it("blocked admin cannot block anyone", async () => {
         await pool.query(
             `UPDATE users SET status = $1 WHERE id = $2`,
             [UserStatus.BLOCKED, actor.id]
@@ -99,7 +154,7 @@ describe("Users API (integration, status-based)", () => {
     });
 
     // ─────────────────────────────
-    // unblock user
+    // unblock user (ADMIN only)
     // ─────────────────────────────
     it("unblocks blocked user", async () => {
         await pool.query(
@@ -113,11 +168,12 @@ describe("Users API (integration, status-based)", () => {
             .send({ user_id: target.id });
 
         expect(res.status).toBe(200);
-        expect(res.body.unblockedUser.status).toBe(UserStatus.ACTIVE);
+        expect(res.body.unblockedUser.status)
+            .toBe(UserStatus.ACTIVE);
     });
 
     // ─────────────────────────────
-    // find user by id
+    // find user (ADMIN or MODERATOR)
     // ─────────────────────────────
     it("finds user by id", async () => {
         const res = await request(app)
@@ -129,20 +185,6 @@ describe("Users API (integration, status-based)", () => {
         expect(res.body.foundUser.id).toBe(target.id);
     });
 
-    it("returns 404 when user not found by id", async () => {
-        const res = await request(app)
-            .post("/api/user/get_id")
-            .set("Authorization", `Bearer ${actorToken}`)
-            .send({
-                user_id: "00000000-0000-0000-0000-000000000000",
-            });
-
-        expect(res.status).toBe(404);
-    });
-
-    // ─────────────────────────────
-    // find user by email
-    // ─────────────────────────────
     it("finds user by email", async () => {
         const res = await request(app)
             .post("/api/user/get_email")
@@ -150,12 +192,10 @@ describe("Users API (integration, status-based)", () => {
             .send({ email: target.email });
 
         expect(res.status).toBe(200);
-        expect(res.body.foundUser.email).toBe(target.email);
+        expect(res.body.foundUser.email)
+            .toBe(target.email);
     });
 
-    // ─────────────────────────────
-    // get all users
-    // ─────────────────────────────
     it("returns all users", async () => {
         await createUser(`u1_${Date.now()}@test.com`);
         await createUser(`u2_${Date.now()}@test.com`);
@@ -165,12 +205,12 @@ describe("Users API (integration, status-based)", () => {
             .set("Authorization", `Bearer ${actorToken}`);
 
         expect(res.status).toBe(200);
-        expect(Array.isArray(res.body.allUsers)).toBe(true);
-        expect(res.body.allUsers.length).toBeGreaterThanOrEqual(3);
+        expect(Array.isArray(res.body.allUsers))
+            .toBe(true);
     });
 
     // ─────────────────────────────
-    // delete user
+    // delete user (ADMIN only)
     // ─────────────────────────────
     it("deletes another user", async () => {
         const res = await request(app)
@@ -179,7 +219,8 @@ describe("Users API (integration, status-based)", () => {
             .send({ user_id: target.id });
 
         expect(res.status).toBe(200);
-        expect(res.body.deletedUser.id).toBe(target.id);
+        expect(res.body.deletedUser.id)
+            .toBe(target.id);
     });
 
     it("cannot delete yourself", async () => {

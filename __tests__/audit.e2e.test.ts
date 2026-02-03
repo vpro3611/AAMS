@@ -13,19 +13,55 @@ describe("Audit API (integration)", () => {
     let actorToken: string;
     let targetUser: any;
 
+    const ADMIN = "ADMIN";
+
     // ─────────────────────────────
     // helpers
     // ─────────────────────────────
     const createUser = async (email: string) => {
         const res = await pool.query(
             `
-            INSERT INTO users (email, password_hash, status)
-            VALUES ($1, 'hash', 'active')
-            RETURNING *
+                INSERT INTO users (email, password_hash, status)
+                VALUES ($1, 'hash', 'active')
+                    RETURNING *
             `,
             [email]
         );
         return res.rows[0];
+    };
+
+    const createRole = async (name: string) => {
+        const res = await pool.query(
+            `INSERT INTO roles (name) VALUES ($1) RETURNING *`,
+            [name]
+        );
+        return res.rows[0];
+    };
+
+    const assignRole = async (userId: string, roleId: string) => {
+        await pool.query(
+            `INSERT INTO user_roles (user_id, role_id) VALUES ($1, $2)`,
+            [userId, roleId]
+        );
+    };
+
+    const createAdminUser = async (email: string) => {
+        const user = await createUser(email);
+
+        let roleRes = await pool.query(
+            `SELECT * FROM roles WHERE name = $1`,
+            [ADMIN]
+        );
+
+        let role = roleRes.rows[0];
+
+        if (!role) {
+            role = await createRole(ADMIN);
+        }
+
+        await assignRole(user.id, role.id);
+
+        return user;
     };
 
     const createAudit = async (actorId: string, action: AuditAction) => {
@@ -51,11 +87,22 @@ describe("Audit API (integration)", () => {
     });
 
     beforeEach(async () => {
-        await pool.query("DELETE FROM audit_events");
-        await pool.query("DELETE FROM users");
+        await pool.query(`
+            TRUNCATE TABLE
+                audit_events,
+                user_roles,
+                roles,
+                users
+            RESTART IDENTITY CASCADE
+        `);
 
-        actor = await createUser(`actor_${Date.now()}@test.com`);
-        targetUser = await createUser(`target_${Date.now()}@test.com`);
+        actor = await createAdminUser(
+            `admin_${Date.now()}@test.com`
+        );
+
+        targetUser = await createUser(
+            `target_${Date.now()}@test.com`
+        );
 
         actorToken = jwt.sign(
             { sub: actor.id },
@@ -69,15 +116,21 @@ describe("Audit API (integration)", () => {
     });
 
     afterAll(async () => {
-        await pool.query("DELETE FROM audit_events");
-        await pool.query("DELETE FROM users");
+        await pool.query(`
+            TRUNCATE TABLE
+                audit_events,
+                user_roles,
+                roles,
+                users
+            RESTART IDENTITY CASCADE
+        `);
         await pool.end();
     });
 
     // ─────────────────────────────
     // get all audit logs
     // ─────────────────────────────
-    it("returns all audit logs", async () => {
+    it("returns all audit logs (ADMIN or MODERATOR)", async () => {
         const res = await request(app)
             .get("/api/audit_logs")
             .set("Authorization", `Bearer ${actorToken}`);
@@ -88,7 +141,7 @@ describe("Audit API (integration)", () => {
     });
 
     it("returns 401 without token", async () => {
-        const res = await request(app).get("/api/audit");
+        const res = await request(app).get("/api/audit_logs");
         expect(res.status).toBe(401);
     });
 
@@ -102,13 +155,17 @@ describe("Audit API (integration)", () => {
             .send({ userId: actor.id });
 
         expect(res.status).toBe(200);
-        expect(res.body.every(
-            (e: any) => e.actor_user_id === actor.id
-        )).toBe(true);
+        expect(
+            res.body.every(
+                (e: any) => e.actor_user_id === actor.id
+            )
+        ).toBe(true);
     });
 
-    it("returns empty array if user has no audit logs", async () => {
-        const newUser = await createUser(`empty_${Date.now()}@test.com`);
+    it("returns empty array if user has no logs", async () => {
+        const newUser = await createUser(
+            `empty_${Date.now()}@test.com`
+        );
 
         const res = await request(app)
             .post("/api/audit_logs/get_user")
@@ -129,16 +186,21 @@ describe("Audit API (integration)", () => {
             .send({ action: AuditAction.ROLE_ASSIGNED });
 
         expect(res.status).toBe(200);
-        expect(res.body.every(
-            (e: any) => e.action === AuditAction.ROLE_ASSIGNED
-        )).toBe(true);
+        expect(
+            res.body.every(
+                (e: any) =>
+                    e.action === AuditAction.ROLE_ASSIGNED
+            )
+        ).toBe(true);
     });
 
     it("returns empty array if action has no logs", async () => {
         const res = await request(app)
             .post("/api/audit_logs/get_action")
             .set("Authorization", `Bearer ${actorToken}`)
-            .send({ action: AuditAction.GET_AUDIT_EVENTS_BY_USER_ID });
+            .send({
+                action: AuditAction.GET_AUDIT_EVENTS_BY_USER_ID,
+            });
 
         expect(res.status).toBe(200);
         expect(res.body).toEqual([]);
