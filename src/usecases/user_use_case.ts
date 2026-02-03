@@ -12,7 +12,8 @@ import {UserRoleRepository} from "../repositories/user_role_repository";
 import {UserRoleService} from "../services/user_role_service";
 
 export class UserUseCase {
-    constructor(private readonly pool: Pool) {}
+    constructor(private readonly pool: Pool) {
+    }
 
     createUser = async (newUser: NewUser): Promise<User> => {
         const client = await this.pool.connect();
@@ -67,7 +68,7 @@ export class UserUseCase {
         }
     }
 
-     unblockUser = async (actorId: string, userId: string): Promise<User> => {
+    unblockUser = async (actorId: string, userId: string): Promise<User> => {
         if (actorId === userId) throw new BadRequestError("Cannot unblock yourself")
         if (!actorId) throw new BadRequestError("Actor ID is required");
 
